@@ -13,26 +13,25 @@ import (
 )
 
 /**
- * @brief [Builtin] Display env
- */
-func env(sh *Gosh) {
-	for _, line := range sh.env {
-		fmt.Printf("%s\n", line)
-	}
-}
-
-/**
  * @brief [Builtin] Exit shell
+ *
+ * @param sh Instance of the shell
+ * @param argv Argument list of the command
+ *
  */
-func exit(sh *Gosh) {
+func exit(sh *Gosh, argv []string) {
 	fmt.Printf("Exit\n")
 	os.Exit(0)
 }
 
 /**
  * @brief [Builtin] Display current pwd
+ *
+ * @param sh Instance of the shell
+ * @param argv Argument list of the command
+ *
  */
-func getPwd(sh *Gosh) {
+func getPwd(sh *Gosh, argv []string) {
 	var (
 		pwd string
 		err os.Error
@@ -45,6 +44,8 @@ func getPwd(sh *Gosh) {
 	fmt.Printf("%s\n", pwd)
 }
 
+type builtinFunc func(*Gosh, []string);
+
 /**
  * @brief Put the builtins functions in object map
  *
@@ -52,10 +53,16 @@ func getPwd(sh *Gosh) {
  *
  * @return Map with builtin => function
  */
-func defineBuiltins() map[string]func(*Gosh) {
-	b := make(map[string]func(*Gosh))
+func defineBuiltins() map[string]builtinFunc {
+	b := make(map[string]builtinFunc)
 
 	b["env"] = env
+	b["getenv"] = getEnv
+	b["export"] = setEnv
+	b["setenv"] = setEnv
+	b["unset"] = unsetEnv
+	b["unsetenv"] = unsetEnv
+
 	b["exit"] = exit
 	b["pwd"] = getPwd
 	return b

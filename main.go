@@ -23,7 +23,7 @@ const (
 type Gosh struct {
 	env      []string
 	pRead    chan string
-	builtins map[string]func(*Gosh)
+	builtins map[string]builtinFunc
 }
 
 /**
@@ -94,7 +94,7 @@ func (self *Gosh) getEnv(key string) (string, os.Error) {
 			return line[index+1:], nil
 		}
 	}
-	return "", os.NewError("[env] " + key + " is not defined")
+	return "", os.NewError("Error: $" + key + " is not defined")
 }
 
 /**
@@ -107,7 +107,7 @@ func (self *Gosh) cmdCheckPath(argv []string) {
 
 	/// First we check if the command is a builting
 	if fctBuiltin, check := self.builtins[argv[0]]; check == true {
-		fctBuiltin(self)
+		fctBuiltin(self, argv)
 		return
 	}
 
