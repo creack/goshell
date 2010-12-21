@@ -59,6 +59,7 @@ func (self *Gosh) Reader() {
  *
  * @todo Handle errors, Pass correct flags to os.Wait instead of 0
  * @todo Think about pipeline/jobcontrol
+ * @todo Check if os.ForkExec is pertinent
  *
  * @param cmd Command to execute with full path
  * @param argv Array of args, argv[0] is the command to execute
@@ -97,13 +98,12 @@ func (self *Gosh) getEnv(key string) (string, os.Error) {
 }
 
 /**
- * @brief Parse the line from stdin
+ * @brief Check the command and add path if needed
  *
- * @param line Line read from stdin
+ * @param argv List of arguments of the command
  *
  */
-func (self *Gosh) parse(line string) {
-	argv := strings.Fields(line)
+func (self *Gosh) cmdCheckPath(argv []string) {
 
 	/// First we check if the command is a builting
 	if fctBuiltin, check := self.builtins[argv[0]]; check == true {
@@ -126,7 +126,7 @@ func (self *Gosh) parse(line string) {
 	if err != nil {
 		path = DEFAULT_PATH
 	}
-	/// @todo Use correct flag for Access
+	/// @todo Use os.Stat/Permission instead of syscall.Access
 	pathTab := strings.Split(path, ":", -1)
 	for _, elem := range pathTab {
 		if syscall.Access(elem+"/"+argv[0], 0) == 0 {
@@ -135,6 +135,17 @@ func (self *Gosh) parse(line string) {
 		}
 	}
 	fmt.Printf("gosh: command not found: %s\n", argv[0])
+}
+
+/**
+ * @brief Parse the line from stdin
+ *
+ * @param line Line read from stdin
+ *
+ */
+func (self *Gosh) parse(line string) {
+	argv := strings.Fields(line)
+	self.cmdCheckPath(argv)
 }
 
 /**
@@ -161,7 +172,7 @@ func (self *Gosh) Start() {
 		print("$>")
 		select {
 		case line := <-self.pRead:
-			if line != "" {
+			if line = strings.TrimSpace(line); line != "" {
 				self.parse(line)
 			}
 		}
@@ -244,4 +255,3 @@ func main() {
 	<-make(chan int)
 	fmt.Printf("Hello World!\n")
 }
-
