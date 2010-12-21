@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
 /**
@@ -14,7 +15,9 @@ import (
  */
 func env(sh *Gosh, argv []string) {
 	for _, line := range sh.env {
-		fmt.Printf("%s\n", line)
+		if line != "" {
+			fmt.Printf("%s\n", line)
+		}
 	}
 }
 
@@ -47,6 +50,16 @@ func getEnv(sh *Gosh, argv []string) {
  *
  */
 func setEnv(sh *Gosh, argv []string) {
+	if len(argv) == 1 {
+		env(sh, argv)
+		return
+	}
+	index := strings.Index(argv[1], "=")
+	if index < 0 {
+		fmt.Printf("Error, expected \"export key=value\"\n")
+		return
+	}
+	sh.setEnv(argv[1][:index], argv[1][index+1:])
 }
 
 /**
@@ -57,5 +70,24 @@ func setEnv(sh *Gosh, argv []string) {
  *
  */
 func unsetEnv(sh *Gosh, argv []string) {
+	if len(argv) == 1 {
+		return
+	}
+	if len(argv) == 2 && argv[1] == "*" {
+		sh.env = make([]string, 1)
+	}
+}
+
+/**
+ * @brief Display env array size
+ */
+func envSize(sh *Gosh, argv []string) {
+	used := 0
+	for i := 0; i < len(sh.env); i++ {
+		if sh.env[i] != "" {
+			used++
+		}
+	}
+	fmt.Printf("Used : %d/%d\n", used, len(sh.env))
 }
 

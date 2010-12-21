@@ -62,6 +62,7 @@ func defineBuiltins() map[string]builtinFunc {
 	b["setenv"] = setEnv
 	b["unset"] = unsetEnv
 	b["unsetenv"] = unsetEnv
+	b["envsize"] = envSize
 
 	b["exit"] = exit
 	b["pwd"] = getPwd

@@ -77,25 +77,6 @@ func (self *Gosh) exec(cmd string, argv []string) {
 	}
 }
 
-/**
- * @brief Get the env value of the givven key
- *
- * @param key Key (env var) which we want to get
- *
- * @return value of the variable
- */
-func (self *Gosh) getEnv(key string) (string, os.Error) {
-	for _, line := range self.env {
-		index := strings.Index(line, "=")
-		if index < 0 {
-			continue
-		}
-		if line[:index] == key {
-			return line[index+1:], nil
-		}
-	}
-	return "", os.NewError("Error: $" + key + " is not defined")
-}
 
 /**
  * @brief Check the command and add path if needed
@@ -152,11 +133,8 @@ func (self *Gosh) parse(line string) {
  * @brief Copy current env in local one
  */
 func (self *Gosh) loadEnv() {
-	osEnv := os.Environ()
-	self.env = make([]string, len(osEnv))
-	for i, envLine := range osEnv {
-		self.env[i] = envLine
-	}
+	self.env = make([]string, len(os.Environ()))
+	copy(self.env, os.Environ())
 }
 
 /**
