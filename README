@@ -1,0 +1,5 @@
+This is not supposed to be a fully fonctionnal shell, I am just playing around
+with go language.
+I am planning to handle job control, multipipe, && || ;
+Maybe I'll also take care about bindkeys
+There is no plans for now to support ' " or completion
