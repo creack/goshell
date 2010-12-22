@@ -96,4 +96,3 @@ func envSize(sh *Gosh, argv []string) {
 	}
 	fmt.Printf("Used : %d/%d\n", used, len(sh.env))
 }
-
