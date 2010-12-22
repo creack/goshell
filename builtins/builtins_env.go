@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -59,7 +60,7 @@ func setEnv(sh *Gosh, argv []string) {
 	}
 	index := strings.Index(argv[1], "=")
 	if index < 0 {
-		fmt.Printf("Error, expected \"export key=value\"\n")
+		fmt.Fprintf(os.Stderr, "Error, expected \"export key=value\"\n")
 		return
 	}
 	sh.setEnv(argv[1][:index], argv[1][index+1:])

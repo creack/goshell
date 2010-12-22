@@ -38,7 +38,7 @@ func chdir(sh *Gosh, argv []string) {
 		dest = argv[1]
 	}
 	if err := os.Chdir(dest); err != nil {
-		fmt.Printf("Can't change directory: %s\n", err)
+		fmt.Fprintf(os.Stderr, "Can't change directory: %s\n", err)
 		return
 	}
 	if pwd, err = os.Getwd(); err != nil {

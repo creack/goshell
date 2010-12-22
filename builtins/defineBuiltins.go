@@ -38,7 +38,7 @@ func getPwd(sh *Gosh, argv []string) {
 	)
 	if pwd, _, err = sh.getEnv("PWD"); err != nil {
 		if pwd, err = os.Getwd(); err != nil {
-			fmt.Printf("Error: can't retrieve pwd\n")
+			fmt.Fprintf(os.Stderr, "Error: can't retrieve pwd\n")
 		}
 	}
 	fmt.Printf("%s\n", pwd)

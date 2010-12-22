@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"syscall"
 )
@@ -43,7 +44,7 @@ func (self *Gosh) cmdCheckPath(argv []string) {
 			return
 		}
 	}
-	fmt.Printf("gosh: command not found: %s\n", argv[0])
+	fmt.Fprintf(os.Stderr, "gosh: command not found: %s\n", argv[0])
 }
 
 /**
