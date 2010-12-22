@@ -24,6 +24,9 @@ func env(sh *Gosh, argv []string) {
 /**
  * @brief [Builtin] Retrieve specified env variable
  *
+ * Can take more than 1 var request, if one variable does not exist,
+ * just display an error message.
+ *
  * @param sh Instance of the shell
  * @param argv Argument list of the command
  *
@@ -34,7 +37,7 @@ func getEnv(sh *Gosh, argv []string) {
 		return
 	}
 	for _, elem := range argv[1:] {
-		value, err := sh.getEnv(elem)
+		value, _, err := sh.getEnv(elem)
 		if err != nil {
 			value = err.String()
 		}
@@ -75,6 +78,9 @@ func unsetEnv(sh *Gosh, argv []string) {
 	}
 	if len(argv) == 2 && argv[1] == "*" {
 		sh.env = make([]string, 1)
+	}
+	for _, elem := range argv[1:] {
+		sh.unsetEnv(elem)
 	}
 }
 

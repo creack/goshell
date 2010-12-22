@@ -36,7 +36,7 @@ func getPwd(sh *Gosh, argv []string) {
 		pwd string
 		err os.Error
 	)
-	if pwd, err = sh.getEnv("PWD"); err != nil {
+	if pwd, _, err = sh.getEnv("PWD"); err != nil {
 		if pwd, err = os.Getwd(); err != nil {
 			fmt.Printf("Error: can't retrieve pwd\n")
 		}
@@ -64,7 +64,11 @@ func defineBuiltins() map[string]builtinFunc {
 	b["unsetenv"] = unsetEnv
 	b["envsize"] = envSize
 
+	b["cd"] = chdir
+	b["chdir"] = chdir
+
 	b["exit"] = exit
 	b["pwd"] = getPwd
 	return b
 }
+

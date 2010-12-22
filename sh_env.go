@@ -19,6 +19,7 @@ import (
  * @param value Value of the variable
  *
  * @todo use Gosh.getEnv in order to check if var exists (see getEnv todo)
+ * @todo limit the reallocation in order to not "malloc error"
  */
 func (self *Gosh) setEnv(key, value string) {
 	/// We check if the key exists
@@ -28,7 +29,7 @@ func (self *Gosh) setEnv(key, value string) {
 			continue
 		}
 		if self.env[i][:index] == key {
-			self.env[i] = key+"="+value
+			self.env[i] = key + "=" + value
 			return
 		}
 	}
@@ -48,7 +49,7 @@ func (self *Gosh) setEnv(key, value string) {
 }
 
 /**
- * @brief Get the env value of the givven key
+ * @brief Get the env value of the given key
  *
  * @param key Key (env var) which we want to get
  *
@@ -56,15 +57,36 @@ func (self *Gosh) setEnv(key, value string) {
  *
  * @return value of the variable and error if any
  */
-func (self *Gosh) getEnv(key string) (string, os.Error) {
+func (self *Gosh) getEnv(key string) (string, int, os.Error) {
+	i := 0
 	for _, line := range self.env {
 		index := strings.Index(line, "=")
 		if index < 0 {
 			continue
 		}
 		if line[:index] == key {
-			return line[index+1:], nil
+			return line[index+1:], i, nil
 		}
+		i++
 	}
-	return "", os.NewError("Error: $" + key + " is not defined")
+	return "", -1, os.NewError("Error: $" + key + " is not defined")
 }
+
+/**
+ * @brief Remove the env value of the given key
+ *
+ * @param key Key (env var) which we want to delete
+ *
+ * @todo Free the array if there is too much empty
+ * @todo align the array
+ *
+ * @return value of the variable and error if any
+ */
+func (self *Gosh) unsetEnv(key string) {
+	_, index, err := self.getEnv(key);
+	if err != nil {
+		return
+	}
+	self.env[index] = ""
+}
+

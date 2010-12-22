@@ -7,5 +7,7 @@ GOFILES	=	main.go			\
 
 GOFILES	+=	builtins/defineBuiltins.go	\
 		builtins/builtins_env.go	\
+		builtins/builtins_cd.go		\
 
 include ${GOROOT}/src/Make.cmd
+

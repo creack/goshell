@@ -42,20 +42,6 @@ func NewGosh() *Gosh {
 }
 
 /**
- * @brief Read from stdin and send the line to the main loop
- */
-func (self *Gosh) Reader() {
-	buf := make([]byte, 1024)
-	for {
-		if n, err := os.Stdin.Read(buf); err != nil {
-			log.Exitf("EOF\n")
-		} else {
-			self.pRead <- string(buf[:n-1])
-		}
-	}
-}
-
-/**
  * @brief Execute argv[0]
  *
  * @todo Handle errors, Pass correct flags to os.Wait instead of 0
@@ -77,7 +63,6 @@ func (self *Gosh) exec(cmd string, argv []string) {
 		os.Wait(pid, 0)
 	}
 }
-
 
 /**
  * @brief Check the command and add path if needed
@@ -104,7 +89,7 @@ func (self *Gosh) cmdCheckPath(argv []string) {
 	}
 
 	/// If it is a "regular" command, try the path
-	path, err := self.getEnv("PATH")
+	path, _, err := self.getEnv("PATH")
 	if err != nil {
 		path = DEFAULT_PATH
 	}
@@ -148,7 +133,7 @@ func (self *Gosh) updateShlvl() {
 		err    os.Error
 	)
 
-	if lvlStr, err = self.getEnv("SHLVL"); err != nil {
+	if lvlStr, _, err = self.getEnv("SHLVL"); err != nil {
 		lvlStr = "0"
 	}
 	if lvl, err = strconv.Atoi(lvlStr); err != nil {
@@ -164,13 +149,18 @@ func (self *Gosh) updateShlvl() {
  *
  */
 func (self *Gosh) Start() {
+	buf := make([]byte, 1024)
 	self.loadEnv()
 	self.updateShlvl()
-	go self.Reader()
 	for {
 		print("$>")
-		select {
-		case line := <-self.pRead:
+		if n, err := os.Stdin.Read(buf); err == os.EOF {
+			fmt.Printf("Exit\n")
+			break
+		} else if err != nil {
+			log.Exitf("Error: %s\n", err)
+		} else {
+			line := string(buf[:n-1])
 			if line = strings.TrimSpace(line); line != "" {
 				self.parse(line)
 			}
@@ -251,6 +241,4 @@ func rec_pipe() {
 func main() {
 	sh := NewGosh()
 	sh.Start()
-	<-make(chan int)
-	fmt.Printf("Hello World!\n")
 }
