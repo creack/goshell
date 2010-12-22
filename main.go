@@ -12,6 +12,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"strconv"
 	"syscall"
 )
 
@@ -138,6 +139,25 @@ func (self *Gosh) loadEnv() {
 }
 
 /**
+ * @brief Update SHLVL env variable
+ */
+func (self *Gosh) updateShlvl() {
+	var (
+		lvl    int
+		lvlStr string
+		err    os.Error
+	)
+
+	if lvlStr, err = self.getEnv("SHLVL"); err != nil {
+		lvlStr = "0"
+	}
+	if lvl, err = strconv.Atoi(lvlStr); err != nil {
+		lvl = 0
+	}
+	self.setEnv("SHLVL", strconv.Itoa(lvl+1))
+}
+
+/**
  * @brief Laumch the shell
  *
  * @note Use goroutine in order to get stdin, should not.
@@ -145,6 +165,7 @@ func (self *Gosh) loadEnv() {
  */
 func (self *Gosh) Start() {
 	self.loadEnv()
+	self.updateShlvl()
 	go self.Reader()
 	for {
 		print("$>")
