@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"strings"
 )
 
@@ -39,6 +40,25 @@ func NewGosh() *Gosh {
 	}
 }
 
+/*
+t_sigs        gl_errors[] =
+     {
+       {SIGSEGV, "Segmentation Fault"},
+       {SIGBUS, "Bus Error"},
+       {SIGINT, "User Interupted"},
+       {SIGQUIT, "Quit"},
+       {SIGILL, "Illegal Instruction"},
+       {SIGABRT, "Abort"},
+       {SIGKILL, "Kill"},
+       {SIGTRAP, "Trap"},
+       {SIGTERM, "Term"},
+       {SIGFPE, "Floating exception"},
+       {SIGSYS, "Unknown system call"},
+       {SIGPIPE, "Broken pipe"},
+       {0, 0}
+     };
+*/
+
 /**
  * @brief Execute argv[0]
  *
@@ -58,7 +78,17 @@ func (self *Gosh) exec(cmd string, argv []string) {
 			log.Exitf("Error exec: %s\n", err)
 		}
 	} else {
-		os.Wait(pid, 0)
+		var (
+			waitStatus *os.Waitmsg
+			err        os.Error
+		)
+		if waitStatus, err = os.Wait(pid, 0); err != nil {
+			log.Printf("Error wait: %s\n", err)
+			return
+		}
+		if waitStatus.WaitStatus != 0 {
+			fmt.Fprintf(os.Stderr, "%s\n", signal.UnixSignal(waitStatus.WaitStatus.Signal()))
+		}
 	}
 }
 

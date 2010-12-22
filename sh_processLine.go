@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"syscall"
 )
@@ -54,8 +55,13 @@ func (self *Gosh) cmdCheckPath(argv []string) {
  *
  */
 func (self *Gosh) parse(line string) {
+	goto normal
+	rgx := regexp.MustCompile("([^]*);([^]*)")
+	for _, l := range rgx.FindAllString(line, -1) {
+		fmt.Printf("%s\n", l)
+	}
+	return
+	normal:
 	argv := strings.Fields(line)
 	self.cmdCheckPath(argv)
 }
-
-
