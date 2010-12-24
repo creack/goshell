@@ -44,7 +44,7 @@ func getPwd(sh *Gosh, argv []string) {
 	fmt.Printf("%s\n", pwd)
 }
 
-type builtinFunc func(*Gosh, []string);
+type builtinFunc func(*Gosh, []string)
 
 /**
  * @brief Put the builtins functions in object map
@@ -71,4 +71,3 @@ func defineBuiltins() map[string]builtinFunc {
 	b["pwd"] = getPwd
 	return b
 }
-
