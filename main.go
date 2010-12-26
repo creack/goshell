@@ -20,10 +20,11 @@ import (
 const (
 	DEFAULT_PATH = "/bin:/usr/bin:/usr/local/bin:/opt/bin:/opt/local/bin"
 )
-
+/** @todo Use map instead of list for procList and Joblib */
 type Gosh struct {
 	env      []string
 	builtins map[string]builtinFunc
+	jobList  *jobList
 }
 
 /**
@@ -36,6 +37,7 @@ type Gosh struct {
 func NewGosh() *Gosh {
 	return &Gosh{
 		builtins: defineBuiltins(),
+		jobList: &jobList{list.New()},
 	}
 }
 

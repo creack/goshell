@@ -163,6 +163,103 @@ func (j *job) start(sh *Gosh) {
 		}
 		infile = readPipe
 	}
+	j.wait(sh)
+}
+
+/**
+ * @brief Check all process from all job and mark status
+ *
+ * @param w WaitMsg return by os.Wait
+ *
+ * @todo Better error handling, making special error types, etc
+ *
+ * @return Error if any
+ */
+func (sh *Gosh) markProcessStatus(w *os.Waitmsg) os.Error {
+	if w.Pid <= 0 {
+		return os.NewError("This shoudl never append")
+	}
+	for j := sh.jobList.Front(); j != nil; j = j.Next() {
+			for p := j.Value.(*job).process.Front(); p != nil; p = p.Next() {
+				if p.Value.(*process).pid == w.Pid {
+					if w.Stopped() == true {
+						p.Value.(*process).stopped = true
+					} else {
+						p.Value.(*process).completed = true
+						if w.Signaled() == true {
+							fmt.Fprintf(os.Stderr, "%d: Terminated by signal %d.\n", w.Pid, w.Signal())
+						}
+					}
+					return nil
+				}
+			}
+	}
+	return os.NewError(fmt.Sprintf("No child process %d.\n", w.Pid))
+}
+
+/**
+ * @brief Check the status of each process of the job. Block until then
+ *
+ * @param sh Instance of shell
+ *
+ * @todo Find a proper and protable way to wait on any childs
+ * @todo Kill all process in case of wait error
+ * @todo Handle errors properly
+ */
+func (j *job) wait(sh *Gosh) {
+	for {
+		w, err := os.Wait(-1, os.WUNTRACED)
+		if err != nil {
+			//fmt.Fprintf(os.Stderr, "Error wait: %s\n", err)
+			return
+		}
+		if sh.markProcessStatus(w); err != nil {
+			break
+		}
+		if j.isStopped() == true {
+			break
+		}
+		if j.isCompleted() == true {
+			break
+		}
+	}
+}
+
+/**
+ * @brief Check each process if the job is stopped
+ *
+ * If at least one process is not flagged as completed and stopped,
+ * it means that it is still alive.
+ *
+ * @return true if job is stopped, false otherwise
+ */
+func (j *job) isStopped() bool {
+	for p := j.process.Front(); p != nil; p = p.Next() {
+		if p.Value.(*process).completed == false {
+			return false
+		}
+		if p.Value.(*process).stopped == false {
+			return false
+		}
+	}
+	return true
+}
+
+/**
+ * @brief Check each process if the job is completed
+ *
+ * If at least one process is not flagged as completed, it means
+ * the job is not completed/
+ *
+ * @return true if job is completed, false otherwise
+ */
+func (j *job) isCompleted() bool {
+	for p := j.process.Front(); p != nil; p = p.Next() {
+		if p.Value.(*process).completed == false {
+			return false
+		}
+	}
+	return true
 }
 
 /**
