@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"./signalC/_obj/signal"
+	"./signalC/_obj/signalC"
 )
 
 /// default path in case there is no $PATH in env
@@ -100,9 +100,9 @@ func (self *Gosh) exec(cmd string, argv []string) {
 	fds[0] = os.Stdin
 	fds[1] = os.Stdout
 	fds[2] = os.Stderr
-	signal.RestoreAll()
+	signalC.RestoreAll()
 	pid, _ := os.ForkExec(cmd, argv, self.env, "", fds)
-	signal.IgnoreAll()
+	signalC.IgnoreAll()
 
 	os.Wait(pid, 0)
 	return
@@ -148,6 +148,8 @@ func (self *Gosh) launchJobs(jobs *jobList) {
  */
 func (self *Gosh) Start() {
 	buf := make([]byte, 1024)
+
+	signalC.IgnoreAll()
 	self.loadEnv()
 	self.updateShlvl()
 	for {
@@ -162,6 +164,7 @@ func (self *Gosh) Start() {
 				fmt.Fprintf(os.Stderr, "%s\n", err)
 				continue
 			} else {
+				self.jobList.PushBackList(jobs.List)
 				self.launchJobs(jobs)
 			}
 		}
@@ -173,6 +176,5 @@ func (self *Gosh) Start() {
  */
 func main() {
 	sh := NewGosh()
-	signal.IgnoreAll()
 	sh.Start()
 }

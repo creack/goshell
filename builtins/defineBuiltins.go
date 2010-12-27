@@ -44,6 +44,19 @@ func getPwd(sh *Gosh, argv []string) {
 	fmt.Printf("%s\n", pwd)
 }
 
+/**
+ * @brief [Builtin] Display job list
+ *
+ * @param sh Instance of the shell
+ * @param argv Argument list of the command
+ *
+ */
+func listJobs(sh *Gosh, argv []string) {
+	for j := sh.jobList.Front(); j != nil; j = j.Next() {
+		fmt.Printf("%s\n", j.Value.(*job).commandLine)
+	}
+}
+
 type builtinFunc func(*Gosh, []string)
 
 /**
@@ -69,5 +82,7 @@ func defineBuiltins() map[string]builtinFunc {
 
 	b["exit"] = exit
 	b["pwd"] = getPwd
+
+	b["jobs"] = listJobs
 	return b
 }

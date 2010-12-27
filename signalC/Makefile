@@ -1,6 +1,6 @@
 include ${GOROOT}/src/Make.inc
 
-TARG		=	signal
+TARG		=	signalC
 CGOFILES	=	signal.go
 
 include ${GOROOT}/src/Make.pkg

@@ -1,4 +1,4 @@
-package signal
+package signalC
 
 // #include <signal.h>
 /*
