@@ -13,7 +13,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	//"syscall"
 	"./signalC/_obj/signalC"
+	"os/signal"
 )
 
 /// default path in case there is no $PATH in env
@@ -22,9 +24,10 @@ const (
 )
 /** @todo Use map instead of list for procList and Joblib */
 type Gosh struct {
-	env      []string
-	builtins map[string]builtinFunc
-	jobList  *jobList
+	shellPgid int
+	env       []string
+	builtins  map[string]builtinFunc
+	jobList   *jobList
 }
 
 /**
@@ -35,9 +38,15 @@ type Gosh struct {
  * @return New instance of the shell
  */
 func NewGosh() *Gosh {
+	pid := os.Getpid()
+	//if errno := syscall.Setpgid(pid, pid); errno < 0 {
+	//fmt.Fprintf(os.Stderr, "Error while putting the shell into his own group\n")
+	//os.Exit(1)
+	//}
 	return &Gosh{
-		builtins: defineBuiltins(),
-		jobList: &jobList{list.New()},
+		shellPgid: pid,
+		builtins:  defineBuiltins(),
+		jobList:   &jobList{list.New()},
 	}
 }
 
@@ -61,11 +70,13 @@ func NewProcess(argv []string, isBuiltin bool) *process {
 }
 
 type job struct {
-	commandLine           string       /**< command line, used for messages */
-	process               *processList /**< list of processes in this job */
-	pgid                  int          /**< process group ID */
-	notified              bool         /**< true if user told about stopped job */
-	stdin, stdout, stderr *os.File     /**< standard i/o channels */
+	commandLine           string           /**< command line, used for messages */
+	process               *processList     /**< list of processes in this job */
+	pgid                  int              /**< process group ID */
+	notified              bool             /**< true if user told about stopped job */
+	stdin, stdout, stderr *os.File         /**< standard i/o channels */
+	pWait                 chan *os.Waitmsg /**< Wait chan for pipeline sync */
+	pError                chan os.Error    /**< Error chan */
 	//tmodes              termios      /**< saved terminal modes */
 }
 type jobList struct {
@@ -79,6 +90,8 @@ func NewJob(line string) *job {
 		stdin:       os.Stdin,
 		stdout:      os.Stdout,
 		stderr:      os.Stderr,
+		pWait:       make(chan *os.Waitmsg),
+		pError:      make(chan os.Error),
 	}
 	return j
 }
@@ -100,9 +113,9 @@ func (self *Gosh) exec(cmd string, argv []string) {
 	fds[0] = os.Stdin
 	fds[1] = os.Stdout
 	fds[2] = os.Stderr
-	signalC.RestoreAll()
+	//signalC.RestoreAll()
 	pid, _ := os.ForkExec(cmd, argv, self.env, "", fds)
-	signalC.IgnoreAll()
+	//signalC.IgnoreAll()
 
 	os.Wait(pid, 0)
 	return
@@ -175,6 +188,7 @@ func (self *Gosh) Start() {
  * @brief Main
  */
 func main() {
+	_ = signal.Incoming
 	sh := NewGosh()
 	sh.Start()
 }
