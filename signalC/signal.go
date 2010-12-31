@@ -8,7 +8,7 @@ void IgnoreAll() {
 	signal(SIGTSTP, SIG_IGN);
 	signal(SIGTTIN, SIG_IGN);
 	signal(SIGTTOU, SIG_IGN);
-	//signal(SIGCHLD, SIG_IGN);
+	signal(SIGCHLD, SIG_IGN);
 }
 
 void RestoreAll() {
@@ -17,7 +17,7 @@ void RestoreAll() {
       signal(SIGTSTP, SIG_DFL);
       signal(SIGTTIN, SIG_DFL);
       signal(SIGTTOU, SIG_DFL);
-      //signal(SIGCHLD, SIG_DFL);
+      signal(SIGCHLD, SIG_DFL);
 }
 */
 import "C"

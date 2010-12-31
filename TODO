@@ -1,0 +1,27 @@
+builtins/builtins_cd.go: * @todo handle pwd without os.Getwd
+builtins/builtins_env.go: * @todo Handle env options
+builtins/defineBuiltins.go: * @todo Use method pointer instead of function pointer
+fork.go: * @todo Wrap errors
+main.go: * @todo Make the makefile compile the signalC dep lib
+main.go:/** @todo Use map instead of list for procList and Joblib */
+main.go: * @todo Handle errors, Pass correct flags to os.Wait instead of 0
+main.go: * @todo Think about pipeline/jobcontrol
+main.go: * @todo Check if os.ForkExec is pertinent
+main.go: * @todo Put back the string instead of signal number
+sh_env.go: * @todo use Gosh.getEnv in order to check if var exists (see getEnv todo)
+sh_env.go: * @todo limit the reallocation in order to not "malloc error"
+sh_env.go: * @todo make it return the index
+sh_env.go: * @todo Free the array if there is too much empty
+sh_env.go: * @todo align the array
+sh_jobs.go: * @todo Handle stderr
+sh_jobs.go: * @todo Put this function and all job related in own file
+sh_jobs.go: * @todo Cut this function in subfunctions
+sh_jobs.go: * @todo Be sure to do not fork to much with pipelined builtin
+sh_jobs.go:* @todo Better error handling, making special error types, etc
+sh_jobs.go: * @todo Find a proper and protable way to wait on any childs
+sh_jobs.go: * @todo Kill all process in case of wait error
+sh_jobs.go: * @todo Handle errors properly
+sh_processLine.go: * @todo Use os.Stat/Permission insteas of syscall.Access
+sh_processLine.go: * @todo Check if executable
+sh_processLine.go: * @todo Check if the file exists when begin with / ./ ../
+sh_processLine.go: * @todo Handle && ||
