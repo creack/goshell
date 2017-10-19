@@ -9,12 +9,13 @@ ENV GOPATH /go
 ENV GOBIN  $GOPATH/bin
 
 RUN mkdir -p $GOPATH $GOBIN && cd $GOROOT/src && ./make.bash
-
 ENV PATH $GOBIN:$PATH
 
-COPY    . $GOPATH/src/github.com/creack/goshell
+COPY . $GOPATH/src/github.com/creack/goshell
 WORKDIR $GOPATH/src/github.com/creack/goshell
 
+
+RUN cd signalC && make
 RUN make
 
 CMD ./gosh
